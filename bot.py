@@ -1,0 +1,155 @@
+import telegram
+from telegram.ext import Updater,CommandHandler,MessageHandler, Filters
+import logging
+import subprocess as sp
+import requests
+import json
+import threading
+from bomber import kill
+import shodan
+
+enabled_users=[]
+
+# api required 
+bot=telegram.Bot("<telegram-token>")
+updater = Updater(token='<telegram-token>')
+dispatcher = updater.dispatcher
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
+SHODAN_API_KEY = "<shodan-token>"
+api = shodan.Shodan(SHODAN_API_KEY)
+
+def banner():
+    c="=========================="
+    c+="\nWelcome To personal Hack Machine"
+    c+="\n      To start Login:- /verify <password>"
+    c+="\n========================"
+    return (c)
+
+
+def sender(update,text):
+    bot.send_message(chat_id=update.message.chat_id, text=text)
+
+def banned(update):
+    bot.send_message(chat_id=update.message.chat_id,text="Banned")
+
+def start(bot, update):
+    bot.send_message(chat_id=update.message.chat_id, text=banner())
+
+start_handler = CommandHandler('start', start)
+dispatcher.add_handler(start_handler)
+
+def verify(bot,update,args):
+    if args:
+        if args[0]=="supersecretpassword@123":
+            sender(update,"Successfully logged in")
+            enabled_users.append(update.message.from_user.id)
+        else:
+            banned(update)
+
+verify_handler = CommandHandler('verify', verify,pass_args=True)
+dispatcher.add_handler(verify_handler)
+
+def echo(bot, update):
+    sender(update,"Use /help For more :)")
+
+echo_handler = MessageHandler(Filters.text, echo)
+dispatcher.add_handler(echo_handler)
+
+def exit(bot, update):
+    sender(update,"Logged out Successfully")
+    enabled_users.remove(update.message.from_user.id)
+    
+
+exit_handler = CommandHandler('exit', exit)
+dispatcher.add_handler(exit_handler)
+
+def help(bot,update):
+    sender(update,"- /verify <password>\n- /cmd <command>\n- /exit\n- /track <phone-number-with-country-prefix>\n- /bomber <indian-phone-number-without-country-code\n- /shodan <For instructions>")
+
+help_handler = CommandHandler('help', help)
+dispatcher.add_handler(help_handler) 
+
+def cmd(bot,update,args):
+    if update.message.from_user.id in enabled_users:
+        if args:
+            command=""
+            for i in range(len(args)):
+                command+=args[i]
+                command+=" "
+            output = sp.getoutput(command)
+            sender(update,output)
+        else:
+            sender(update,"Enter a command dumbass !!")
+    else:
+        banned(update)
+
+caps_handler = CommandHandler('cmd', cmd, pass_args=True)
+dispatcher.add_handler(caps_handler) 
+
+
+def callsearch(bot,update,args):
+    if update.message.from_user.id in enabled_users:
+        if args:
+            args=args[0].replace("+","")
+            r=requests.get("http://apilayer.net/api/validate?access_key=bac65f235f0f1ebfb5bcb5f54fcf3312&number={}&country_code=&format=1".format(args))
+            data=json.loads(r.text)
+            sendback="Phone Number:-{}\nCountry Prefix:-{}\nLocation:-{}\nCountry:-{}\nCarrier:-{}".format(data['international_format'],data['country_prefix'],data['location'],data['country_name'],data['carrier'])
+            sender(update,sendback)
+    else:
+        banned(update)
+call_handler = CommandHandler('track', callsearch, pass_args=True)
+dispatcher.add_handler(call_handler) 
+
+def bomb(bot,update,args):
+    if update.message.from_user.id in enabled_users:
+        if args:
+            num=args[0].replace("+91","")
+            threading.Thread(target=kill,args=(num,)).start()
+            sender(update,"Hiroshima is Done for, sire :)")
+        else:
+            sender(update,"/bomber <indian-phone-number-without-country-code")    
+    else:
+        banned(update)
+
+bomb_handler = CommandHandler('bomber', bomb, pass_args=True)
+dispatcher.add_handler(bomb_handler) 
+
+def shodansearch(bot,update,args):
+    if update.message.from_user.id in enabled_users:
+        if args:
+            if len(args)<2:
+                if args[0]=="ip":
+                    try:
+                        a=api.host('{}'.format(args[1]))
+                        ports=str(a['ports']).replace("[","").replace("]","")
+                        a="ip:{}\nports opened:{}\nCity:{}\ncountry code:{}\nISP:{}\nlongitude:{}\nlatitude:{}".format(a['ip_str'],ports,a['data'][0]['location']['city'],a['data'][0]['location']['country_code3'],a['isp'],a['longitude'],a['latitude'])
+                        sender(update,a)
+                    except:
+                        sender(update,"No information available on this ip")
+                if args[0]=="find":
+                    query=str(args[1])
+                    a=api.search(query,page=1,limit=3)
+                    for i in a['matches']:
+                        s="\norganistaion {}\nISP: {}\nIP: {}\n".format(i['org'],i['isp'],i['ip_str'])
+                        sender(update,s)
+            if len(args)>2:            
+                if args[0]=="find" and args[1]=="limit":
+                    limits=int(args[2])
+                    if limits<=10:
+                        query=str(args[3])
+                        a=api.search(query,page=1,limit=limits)
+                        for i in a['matches']:
+                            s="\norganistaion {}\nISP: {}\nIP: {}\n".format(i['org'],i['isp'],i['ip_str'])
+                            sender(update,s)
+                    else:
+                        sender(update,"Limit Crossed")                             
+        else:
+            a="- /shodan ip <ipaddress>\n- /shodan find <http/ssh/ftp/port/city/software> [MAX LIMIT 3]\n- /shodan find limit <enter b/w 1 to 10> <http/ssh/ftp/port/city/software>  [MAX LIMIT 10]" 
+            sender(update,a)       
+    else:
+        banned(update)            
+
+shodan_handler = CommandHandler('shodan', shodansearch, pass_args=True)
+dispatcher.add_handler(shodan_handler) 
+
+updater.start_polling()
