@@ -117,7 +117,7 @@ dispatcher.add_handler(bomb_handler)
 def shodansearch(bot,update,args):
     if update.message.from_user.id in enabled_users:
         if args:
-            if len(args)<2:
+            if len(args)<=2:
                 if args[0]=="ip":
                     try:
                         a=api.host('{}'.format(args[1]))
@@ -132,7 +132,7 @@ def shodansearch(bot,update,args):
                     for i in a['matches']:
                         s="\norganistaion {}\nISP: {}\nIP: {}\n".format(i['org'],i['isp'],i['ip_str'])
                         sender(update,s)
-            if len(args)>2:            
+            elif len(args)>2:            
                 if args[0]=="find" and args[1]=="limit":
                     limits=int(args[2])
                     if limits<=10:
