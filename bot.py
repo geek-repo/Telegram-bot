@@ -91,7 +91,7 @@ def callsearch(bot,update,args):
     if update.message.from_user.id in enabled_users:
         if args:
             args=args[0].replace("+","")
-            r=requests.get("http://apilayer.net/api/validate?access_key=bac65f235f0f1ebfb5bcb5f54fcf3312&number={}&country_code=&format=1".format(args))
+            r=requests.get("http://apilayer.net/api/validate?access_key=<tokenkey>&number={}&country_code=&format=1".format(args))
             data=json.loads(r.text)
             sendback="Phone Number:-{}\nCountry Prefix:-{}\nLocation:-{}\nCountry:-{}\nCarrier:-{}".format(data['international_format'],data['country_prefix'],data['location'],data['country_name'],data['carrier'])
             sender(update,sendback)
