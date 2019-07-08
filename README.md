@@ -10,6 +10,8 @@ this telegram bot has features like sms bomber,shodan search,password protected,
 - pip3 install SpeechRecognition
 - pip3 install pydub
 
+(If you getting any error related to ffmpeg while running then execute this) - apt install ffmpeg
+
 ## Commands
 
  - python3 bot.py
