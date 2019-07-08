@@ -14,11 +14,11 @@ import re
 enabled_users=[]
 
 # api required 
-bot=telegram.Bot("855946293:AAGKrH65Fi-WH9ugCcfpc26RZSMunfSflic")
-updater = Updater(token='855946293:AAGKrH65Fi-WH9ugCcfpc26RZSMunfSflic')
+bot=telegram.Bot("<token>")
+updater = Updater(token='<token>')
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
-SHODAN_API_KEY = "4k2WE4SLuYtPKy2jXZWUy4mqhVsfYwn1"
+SHODAN_API_KEY = "<token>"
 api = shodan.Shodan(SHODAN_API_KEY)
 
 def banner():
@@ -172,7 +172,7 @@ def callsearch(bot,update,args):
     if update.message.from_user.id in enabled_users:
         if args:
             args=args[0].replace("+","")
-            r=requests.get("http://apilayer.net/api/validate?access_key=bac65f235f0f1ebfb5bcb5f54fcf3312&number={}&country_code=&format=1".format(args))
+            r=requests.get("http://apilayer.net/api/validate?access_key=<token>&number={}&country_code=&format=1".format(args))
             data=json.loads(r.text)
             sendback="Phone Number:-{}\nCountry Prefix:-{}\nLocation:-{}\nCountry:-{}\nCarrier:-{}".format(data['international_format'],data['country_prefix'],data['location'],data['country_name'],data['carrier'])
             sender(update,sendback)
