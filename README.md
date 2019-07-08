@@ -12,6 +12,11 @@ this telegram bot has features like sms bomber,shodan search,password protected,
 
 (If you getting any error related to ffmpeg while running then execute this) - apt install ffmpeg
 
+## TOKEN NEEDED
+- shodan token (for shodan queries)
+- telegram bot token (for the actual bot)
+- apilayer.net token (for using track phone number features)
+
 ## Commands
 
  - python3 bot.py
