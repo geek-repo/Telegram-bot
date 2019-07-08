@@ -14,11 +14,11 @@ import re
 enabled_users=[]
 
 # api required 
-bot=telegram.Bot("<telegram token>")
-updater = Updater(token='<telegram token>')
+bot=telegram.Bot("855946293:AAGKrH65Fi-WH9ugCcfpc26RZSMunfSflic")
+updater = Updater(token='855946293:AAGKrH65Fi-WH9ugCcfpc26RZSMunfSflic')
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
-SHODAN_API_KEY = "<shodan token>"
+SHODAN_API_KEY = "4k2WE4SLuYtPKy2jXZWUy4mqhVsfYwn1"
 api = shodan.Shodan(SHODAN_API_KEY)
 
 def banner():
@@ -116,18 +116,22 @@ def analyser(bot,update,commands):
     elif re.match("sms",commands):
         commands=commands.replace("sms","").replace(" ","")
         text = commands.split(' ')
+        
         sender(update,"Target: {}".format(text[0]))
         bomb(bot,update,text)
 
     elif re.match("verify",commands):
         commands=commands.replace("verify","").replace(" ","")
         text = commands.split(' ')
+        
         sender(update,"Password Entered: {}".format(text[0]))
         verify(bot,update,text)
 
     elif re.match("help",commands):
         help(bot,update)
 
+    elif re.match("exit",commands):
+        exit(bot,update)
         
     else:
         sender(update,"Process failed try again :(\nraw output: {}".format(commands))    
@@ -140,7 +144,7 @@ dispatcher.add_handler(help_handler)
 
 
 def voice_help(bot,update):
-    sender(update,"[Below commands should be spoken clearly and you can only use voice command and control from personal chat with bot]\n\n[To start chat with bot click here:- \nhttps://telegram.me/callmedaddbot ]\n- help\n- verify <password>\n- sms <number to bomb>\n- shodan find/ip <ip/http/ftp/service>\n- cmd <command-to-execute> ")
+    sender(update,"[Below commands should be spoken clearly and you can only use voice command and control from personal chat with bot]\n\n[To start chat with bot click here:- \nhttps://telegram.me/callmedaddbot ]\n- help\n- verify <password>\n- sms <number to bomb>\n- shodan find/ip <ip/http/ftp/service>\n- cmd <command-to-execute>\n- exit ")
 
 voicehelp_handler = CommandHandler('voice', voice_help)
 dispatcher.add_handler(voicehelp_handler) 
@@ -168,7 +172,7 @@ def callsearch(bot,update,args):
     if update.message.from_user.id in enabled_users:
         if args:
             args=args[0].replace("+","")
-            r=requests.get("http://apilayer.net/api/validate?access_key=<apilayertoken>&number={}&country_code=&format=1".format(args))
+            r=requests.get("http://apilayer.net/api/validate?access_key=bac65f235f0f1ebfb5bcb5f54fcf3312&number={}&country_code=&format=1".format(args))
             data=json.loads(r.text)
             sendback="Phone Number:-{}\nCountry Prefix:-{}\nLocation:-{}\nCountry:-{}\nCarrier:-{}".format(data['international_format'],data['country_prefix'],data['location'],data['country_name'],data['carrier'])
             sender(update,sendback)
