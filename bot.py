@@ -116,14 +116,12 @@ def analyser(bot,update,commands):
     elif re.match("sms",commands):
         commands=commands.replace("sms","").replace(" ","")
         text = commands.split(' ')
-        
         sender(update,"Target: {}".format(text[0]))
         bomb(bot,update,text)
 
     elif re.match("verify",commands):
         commands=commands.replace("verify","").replace(" ","")
         text = commands.split(' ')
-        
         sender(update,"Password Entered: {}".format(text[0]))
         verify(bot,update,text)
 
