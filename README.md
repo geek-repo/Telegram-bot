@@ -3,8 +3,9 @@ this telegram bot has features like sms bomber,shodan search,password protected,
 
 ## Installation (python3-pip)
 
-- pip install python-telegram-bot --upgrade
-- pip install shodan
+- pip3 install python-telegram-bot --upgrade
+- pip3 install shodan
+- pip3 install SpeechRecognition
 
 ## Commands
 
