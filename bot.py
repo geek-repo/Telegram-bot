@@ -7,15 +7,18 @@ import json
 import threading
 from bomber import kill
 import shodan
+import speech_recognition as sr
+from pydub import AudioSegment
+import re
 
 enabled_users=[]
 
 # api required 
-bot=telegram.Bot("<telegram-token>")
-updater = Updater(token='<telegram-token>')
+bot=telegram.Bot("855946293:AAGKrH65Fi-WH9ugCcfpc26RZSMunfSflic")
+updater = Updater(token='855946293:AAGKrH65Fi-WH9ugCcfpc26RZSMunfSflic')
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
-SHODAN_API_KEY = "<shodan-token>"
+SHODAN_API_KEY = "4k2WE4SLuYtPKy2jXZWUy4mqhVsfYwn1"
 api = shodan.Shodan(SHODAN_API_KEY)
 
 def banner():
@@ -40,7 +43,7 @@ dispatcher.add_handler(start_handler)
 
 def verify(bot,update,args):
     if args:
-        if args[0]=="supersecretpassword@123":
+        if args[0]=="haha@123":
             sender(update,"Successfully logged in")
             enabled_users.append(update.message.from_user.id)
         else:
@@ -55,6 +58,28 @@ def echo(bot, update):
 echo_handler = MessageHandler(Filters.text, echo)
 dispatcher.add_handler(echo_handler)
 
+
+def voice_handler(bot, update):
+    
+    r = sr.Recognizer()
+    file = bot.getFile(update.message.voice.file_id)
+    sender(update,"Processing the command")
+    file.download('voice.ogg')
+    ogg_version = AudioSegment.from_ogg("voice.ogg")
+    ogg_version.export("voice.wav", format="wav")
+    #try:
+    harvard = sr.AudioFile('voice.wav')
+    with harvard as source:
+        audio = r.record(source)
+        analyser(bot,update,r.recognize_google(audio))
+    #except:
+    #pass   
+    #else:
+     #   banned(update)      
+
+echoaudio_handler = MessageHandler(Filters.voice, voice_handler)
+dispatcher.add_handler(echoaudio_handler)    
+
 def exit(bot, update):
     sender(update,"Logged out Successfully")
     enabled_users.remove(update.message.from_user.id)
@@ -63,15 +88,69 @@ def exit(bot, update):
 exit_handler = CommandHandler('exit', exit)
 dispatcher.add_handler(exit_handler)
 
+
+def cmd2(bot,update,args):
+    if update.message.from_user.id in enabled_users:
+        if args:
+            output = sp.getoutput(args)
+            sender(update,output)
+        else:
+            sender(update,"Enter a command dumbass !!")
+    else:
+        banned(update)
+
+
+
+def analyser(bot,update,commands):
+    commands=commands.lower()
+    if re.match("cmd",commands):
+        commands=commands.replace("cmd","")
+        
+        cmd2(bot,update,commands)
+    elif re.match("shodan",commands):
+        commands=commands.replace("shodan","")
+        text = commands.split(' ')
+        text.remove('')
+        
+        shodansearch(bot,update,text)
+    elif re.match("sms",commands):
+        commands=commands.replace("sms","").replace(" ","")
+        text = commands.split(' ')
+        
+        sender(update,"Target: {}".format(text[0]))
+        bomb(bot,update,text)
+
+    elif re.match("verify",commands):
+        commands=commands.replace("verify","").replace(" ","")
+        text = commands.split(' ')
+        
+        sender(update,"Password Entered: {}".format(text[0]))
+        verify(bot,update,text)
+
+    elif re.match("help",commands):
+        help(bot,update)
+
+        
+    else:
+        sender(update,"Process failed try again :(\nraw output: {}".format(commands))    
+
 def help(bot,update):
-    sender(update,"- /verify <password>\n- /cmd <command>\n- /exit\n- /track <phone-number-with-country-prefix>\n- /bomber <indian-phone-number-without-country-code\n- /shodan <For instructions>")
+    sender(update,"- /verify <password>\n- /cmd <command>\n- /exit\n- /track <phone-number-with-country-prefix>\n- /bomber <indian-phone-number-without-country-code\n- /shodan <For instructions>\n- /voice <For instructions>")
 
 help_handler = CommandHandler('help', help)
 dispatcher.add_handler(help_handler) 
 
+
+def voice_help(bot,update):
+    sender(update,"[Below commands should be spoken clearly and you can only use voice command and control from personal chat with bot]\n\n[To start chat with bot click here:- \nhttps://telegram.me/callmedaddbot ]\n- help\n- verify <password>\n- sms <number to bomb>\n- shodan find/ip <ip/http/ftp/service>\n- cmd <command-to-execute> ")
+
+voicehelp_handler = CommandHandler('voice', voice_help)
+dispatcher.add_handler(voicehelp_handler) 
+
 def cmd(bot,update,args):
     if update.message.from_user.id in enabled_users:
         if args:
+            print (len(args))
             command=""
             for i in range(len(args)):
                 command+=args[i]
@@ -91,7 +170,7 @@ def callsearch(bot,update,args):
     if update.message.from_user.id in enabled_users:
         if args:
             args=args[0].replace("+","")
-            r=requests.get("http://apilayer.net/api/validate?access_key=<tokenkey>&number={}&country_code=&format=1".format(args))
+            r=requests.get("http://apilayer.net/api/validate?access_key=bac65f235f0f1ebfb5bcb5f54fcf3312&number={}&country_code=&format=1".format(args))
             data=json.loads(r.text)
             sendback="Phone Number:-{}\nCountry Prefix:-{}\nLocation:-{}\nCountry:-{}\nCarrier:-{}".format(data['international_format'],data['country_prefix'],data['location'],data['country_name'],data['carrier'])
             sender(update,sendback)
@@ -128,6 +207,7 @@ def shodansearch(bot,update,args):
                         sender(update,"No information available on this ip")
                 if args[0]=="find":
                     query=str(args[1])
+                    
                     a=api.search(query,page=1,limit=3)
                     for i in a['matches']:
                         s="\norganistaion {}\nISP: {}\nIP: {}\n".format(i['org'],i['isp'],i['ip_str'])
@@ -151,5 +231,8 @@ def shodansearch(bot,update,args):
 
 shodan_handler = CommandHandler('shodan', shodansearch, pass_args=True)
 dispatcher.add_handler(shodan_handler) 
+
+
+
 
 updater.start_polling()
