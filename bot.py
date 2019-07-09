@@ -15,11 +15,11 @@ enabled_users=[]
 ippsec_list=[]
 
 # api required 
-bot=telegram.Bot("<telegram bot>")
-updater = Updater(token='<telegram bot>')
+bot=telegram.Bot("<token>")
+updater = Updater(token='<token>')
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
-SHODAN_API_KEY = "<shodan bot>"
+SHODAN_API_KEY = "<token>"
 api = shodan.Shodan(SHODAN_API_KEY)
 
 def banner():
@@ -34,7 +34,7 @@ def sender(update,text):
     bot.send_message(chat_id=update.message.chat_id, text=text)
 
 def banned(update):
-    bot.send_message(chat_id=update.message.chat_id,text="Banned")
+    bot.send_message(chat_id=update.message.chat_id,text="Login First !!")
 
 def start(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text=banner())
@@ -125,8 +125,22 @@ def ippsec(bot,update,args):
     else:
         banned(update)
 
-help_handler = CommandHandler('youtube', ippsec,pass_args=True)
+
+def ippsec_start(bot,update,args):
+    commands=""
+    lists=[]
+    for i in range(len(args)):
+        commands+=args[i]
+        commands+=" "
+    commands.split()   
+    lists.append(commands)
+    print(lists)
+    ippsec(bot,update,lists)   
+
+help_handler = CommandHandler('youtube', ippsec_start,pass_args=True)
 dispatcher.add_handler(help_handler) 
+
+ 
 
 
 def analyser(bot,update,commands):
@@ -178,7 +192,7 @@ dispatcher.add_handler(help_handler)
 
 
 def voice_help(bot,update):
-    sender(update,"[Below commands should be spoken clearly and you can only use voice command and control from personal chat with bot]\n\n[To start chat with bot click here:- \nhttps://telegram.me/callmedaddbot ]\n- help\n- verify <password>\n- sms <number to bomb>\n- shodan find/ip <ip/http/ftp/service>\n- cmd <command-to-execute>\n- youtube <keyword-to-search-in-ippsec-videos>\n- exit ")
+    sender(update,"[Below commands should be spoken clearly and you can only use voice command and control from personal chat with bot and by replying to bot in group chats]\n\n[To start chat with bot click here:- \n\nhttps://telegram.me/callmedaddbot ]\n- help\n- verify <password>\n- sms <number to bomb>\n- shodan find/ip <ip/http/ftp/service>\n- cmd <command-to-execute>\n- youtube <keyword-to-search-in-ippsec-videos>\n- exit ")
 
 voicehelp_handler = CommandHandler('voice', voice_help)
 dispatcher.add_handler(voicehelp_handler) 
@@ -205,7 +219,7 @@ def callsearch(bot,update,args):
     if update.message.from_user.id in enabled_users:
         if args:
             args=args[0].replace("+","")
-            r=requests.get("http://apilayer.net/api/validate?access_key=<apilayer api>&number={}&country_code=&format=1".format(args))
+            r=requests.get("http://apilayer.net/api/validate?access_key=<token>&number={}&country_code=&format=1".format(args))
             data=json.loads(r.text)
             sendback="Phone Number:-{}\nCountry Prefix:-{}\nLocation:-{}\nCountry:-{}\nCarrier:-{}".format(data['international_format'],data['country_prefix'],data['location'],data['country_name'],data['carrier'])
             sender(update,sendback)
