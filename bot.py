@@ -99,6 +99,7 @@ def cmd2(bot,update,args):
 def ippsec(bot,update,args):
     if update.message.from_user.id in enabled_users:
         target=args[0]
+        temp=['empty life']
         global ippsec_list
         if ippsec_list:
             count=0
@@ -112,9 +113,13 @@ def ippsec(bot,update,args):
                     while flag==0:
                         s=ippsec_list[location]
                         if s.find("HackTheBox")==0:
-                            output="Machine: {}\nLink: {}".format(s,ippsec_list[location+1])
-                            sender(update,output)
-                            flag=1
+                            if ippsec_list[location+1] in temp:
+                                flag=1
+                            else:
+                                temp.append(ippsec_list[location+1])    
+                                output="Machine: {}\nLink: {}".format(s,ippsec_list[location+1])
+                                sender(update,output)
+                                flag=1
                         else:
                             location=location-1
         else:
