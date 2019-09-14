@@ -3,7 +3,7 @@ import time
 
 def bombus(number):
     r=requests.session()
-    url="https://www.redbus.in/Personalization/SendOTP?mobile={}&phoneCode=91&OTPSource=SIGNIN".format(number)
+    url="https://www.<redacted>.com/Personalization/SendOTP?mobile={}&phoneCode=91&OTPSource=SIGNIN".format(number)
     proxy={'http':'45.7.231.86','http':'66.42.107.87:8080','http':'68.183.99.96:8080'}
     headers={"Host":"www.redbus.in",
             "Connection": "close",
